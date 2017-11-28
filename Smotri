@@ -1,0 +1,80 @@
+unit PictureViewer;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, Jpeg, StdCtrls, ExtCtrls, FileCtrl; // Jpeg - модуль для открытия файлов с jpg расширением
+
+type
+  TProsmotr_priloj = class(TForm)
+    FolderButton: TButton;
+    OtkrImage: TImage;
+    ImgList: TListBox;
+    procedure FolderButtonClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure ImgListClick(Sender: TObject);
+    Procedure FillListBox;
+  private
+
+
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Prosmotr_priloj: TProsmotr_priloj;
+    Path : string;
+implementation
+
+{$R *.dfm}
+
+procedure TProsmotr_priloj.FillListBox;
+var
+SearchRec : TSearchRec ; // результат поиска файла
+r : integer;
+begin
+  r := FindFirst(Path+ '*.jpg', faAnyFile, SearchRec);
+  if r = 0 then
+  begin
+  ImgList.Items.Clear;
+  ImgList.Items.Add(SearchRec.Name);
+  while 0 = FindNext (SearchRec) do
+  begin
+    ImgList.Items.Add(SearchRec.Name);
+  end;
+ImgList.ItemIndex:=0;
+ImgList->Center = true;
+OtkrImage.Picture.LoadFromFile( Path + ImgList.Items[ImgList.ItemIndex]);
+end
+else
+begin
+ ImgList.Items.Clear;
+ OtkrImage.Picture.Bitmap.FreeImage;
+ end;
+end;
+
+procedure TProsmotr_priloj.FolderButtonClick(Sender: TObject);
+begin
+if SelectDirectory('Выберите каталог', '', Path) then
+begin
+  Path := Path + '/';
+  Prosmotr_priloj.Caption := 'Просмотр изображений - ' + Path;
+  FillListBox;
+end;
+end;
+
+procedure TProsmotr_priloj.FormCreate(Sender: TObject);
+begin
+FilllistBox;
+end;
+
+procedure TProsmotr_priloj.ImgListClick(Sender: TObject);
+var filename: string;
+begin
+Filename :=path + ImgList.Items[ImgList.ItemIndex];
+OtkrImage.Picture.LoadFromFile(Filename);
+end;
+
+end.
